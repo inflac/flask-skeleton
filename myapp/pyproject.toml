@@ -1,0 +1,93 @@
+# Build backend and tooling
+[build-system]
+requires = ["setuptools>=70", "wheel", "setuptools-scm>=8"]  # modern build + git-based versioning
+build-backend = "setuptools.build_meta"
+
+# Project metadata (PEP 621)
+[project]
+name = "myapp"
+dynamic = ["version"]  # version comes from git tags via setuptools-scm
+description = "Flask project skeleton"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE" }
+authors = [{ name = "inflac" }]
+keywords = ["flask"]
+requires-python = ">=3.11"
+
+# Runtime dependencies
+dependencies = [
+  "flask>=3.1",
+  "python-dotenv>=1.2",        # load environment variables
+  "flask-sqlalchemy>=3.1",     # ORM integration
+  "flask-migrate>=4.1",        # Alembic migrations
+]
+
+# Optional dependency groups
+[project.optional-dependencies]
+test = ["pytest>=8", "pytest-cov>=5"]     # testing + coverage
+lint = ["ruff>=0.5"]                      # linting / formatting
+dev = ["myapp[test,lint]"]                # full dev environment
+postgres = ["psycopg>=3.3"]               # PostgreSQL driver
+prod = ["gunicorn>=21"]                   # production WSGI server
+
+# Git-based version configuration
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+fallback_version = "0.1.0"
+
+# Setuptools configuration (src layout)
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true               # include non-code files
+
+# Package discovery
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Include Flask templates and static files
+[tool.setuptools.package-data]
+myapp = ["templates/**/*", "static/**/*"]
+
+# Coverage configuration
+[tool.coverage.run]
+branch = true
+source = ["myapp"]
+omit = [
+  "tests/*",
+  "migrations/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 85
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --cov=myapp --cov-report=term-missing"
+markers = [
+  "unit: fast unit tests",
+  "integration: integration tests",
+  "e2e: end-to-end tests",
+]
+
+# Ruff configuration
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["migrations", "instance"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle
+  "F",   # pyflakes
+  "I",   # import sorting
+  "B",   # bugbear
+  "UP",  # pyupgrade
+]
+# ignore = ["E501"]  # enable if you want to ignore line length warnings

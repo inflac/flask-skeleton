@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/errors.css') }}">
+{% endblock %}
+
+{% block title %}{% block error_title %}Error{% endblock %}{% endblock %}
+
+{% block content %}
+  <div class="error-container">
+    {% block error_content %}{% endblock %}
+
+    {% if request_id %}
+      <div class="error-meta">
+        Request ID: <code>{{ request_id }}</code>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
