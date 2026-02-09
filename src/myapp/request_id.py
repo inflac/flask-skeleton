@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import uuid
-from flask import g, request
 
+from flask import g, request
 
 HEADER = "X-Request-ID"
 

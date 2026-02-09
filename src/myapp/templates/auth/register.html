@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Register</title>
+</head>
+
+<body>
+    <h1>Register</h1>
+    <form method="post">
+        {{ form.csrf_token }}
+        <div>{{ form.username.label }}<br>{{ form.username() }}</div>
+        <div>{{ form.email.label }}<br>{{ form.email() }}</div>
+        <div>{{ form.password.label }}<br>{{ form.password() }}</div>
+        <button type="submit">Create account</button>
+    </form>
+    <p><a href="{{ url_for('auth.login') }}">Back to login</a></p>
+</body>
+
+</html>

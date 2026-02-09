@@ -20,6 +20,9 @@ dependencies = [
   "python-dotenv>=1.2",        # load environment variables
   "flask-sqlalchemy>=3.1",     # ORM integration
   "flask-migrate>=4.1",        # Alembic migrations
+  "flask-login>=0.6.3",        # user session management
+  "flask-wtf>=1.2.1",          # form handling + CSRF protection
+  "email-validator>=2.1.1",    # validate email addresses
 ]
 
 # Optional dependency groups
@@ -29,6 +32,7 @@ lint = ["ruff>=0.5"]                      # linting / formatting
 dev = ["myapp[test,lint]"]                # full dev environment
 postgres = ["psycopg>=3.3"]               # PostgreSQL driver
 prod = ["gunicorn>=21"]                   # production WSGI server
+oauth = ["authlib>=1.3.0"]                # OAuth support 
 
 # Git-based version configuration
 [tool.setuptools_scm]
@@ -66,7 +70,7 @@ fail_under = 85
 # Pytest configuration
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --cov=myapp --cov-report=term-missing"
+addopts = "-ra --cov --cov-report=term-missing"
 markers = [
   "unit: fast unit tests",
   "integration: integration tests",

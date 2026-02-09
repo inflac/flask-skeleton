@@ -11,8 +11,7 @@ def _wants_html() -> bool:
     )
     return (
         best == "text/html"
-        and request.accept_mimetypes["text/html"]
-        >= request.accept_mimetypes["application/json"]
+        and request.accept_mimetypes["text/html"] >= request.accept_mimetypes["application/json"]
     )
 
 
