@@ -8,7 +8,7 @@ def test_register_then_login(client):
     assert resp.status_code in (302, 303)
 
     # logout
-    client.get("/auth/logout")
+    client.post("/auth/logout")
 
     # login
     resp = client.post(

@@ -66,8 +66,9 @@ class BaseConfig:
     AUTH_ALLOW_REGISTRATION: bool = field(
         default_factory=lambda: _env_bool("AUTH_ALLOW_REGISTRATION", False)
     )
-    AUTH_DEFAULT_REDIRECT: str = field(
-        default_factory=lambda: os.getenv("AUTH_DEFAULT_REDIRECT", "/admin")
+    AUTH_AFTER_LOGIN: str = field(default_factory=lambda: os.getenv("AUTH_AFTER_LOGIN", "/"))
+    AUTH_DEFAULT_ADMIN_REDIRECT: str = field(
+        default_factory=lambda: os.getenv("AUTH_DEFAULT_ADMIN_REDIRECT", "/admin")
     )
 
     AUTH_LINK_BY_EMAIL: bool = field(default_factory=lambda: _env_bool("AUTH_LINK_BY_EMAIL", False))

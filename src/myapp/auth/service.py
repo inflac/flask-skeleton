@@ -64,7 +64,12 @@ def complete_login(user: User) -> str:
 
     next_url = request.args.get("next", "")
     if is_safe_next_url(next_url):
+        # Optional: Admin-Ziel abfangen, wenn User kein Admin ist
+        if next_url.startswith("/admin") and not getattr(user, "is_admin", False):
+            return current_app.config.get("AUTH_AFTER_LOGIN", "/")
         return next_url
 
-    # default target
-    return current_app.config.get("AUTH_DEFAULT_REDIRECT", "/admin")
+    # role-aware fallback
+    if getattr(user, "is_admin", False):
+        return current_app.config.get("AUTH_DEFAULT_ADMIN_REDIRECT", "/admin")
+    return current_app.config.get("AUTH_AFTER_LOGIN", "/")

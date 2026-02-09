@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from flask import current_app, flash, redirect, render_template, url_for
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 
 from ...auth.service import complete_login
 from ...extensions import db
@@ -41,7 +41,8 @@ def login_post():
     return redirect(complete_login(user))
 
 
-@bp.get("/logout")
+@bp.post("/logout")
+@login_required
 def logout():
     logout_user()
     return redirect(url_for("auth.login"))

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}{{ config.get("APP_NAME", "myapp") }}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {# Optional: CSP, favicons, etc. später sauber ergänzen #}
+    {% block styles %}{% endblock %}
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('index') }}">{{ config.get("APP_NAME", "myapp") }}</a>
+
+            <span style="margin-left: 1rem;">
+                {% if current_user.is_authenticated %}
+                <span>Signed in as {{ current_user.email }}</span>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                {% endif %}
+            </span>
+
+            <span style="margin-left: 1rem;">
+                {% if current_user.is_authenticated %}
+                {% include "partials/_logout_form.html" %}
+                {% endif %}
+            </span>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+
+</html>

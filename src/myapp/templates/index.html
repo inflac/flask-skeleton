@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Home · {{ config.get("APP_NAME", "myapp") }}{% endblock %}
+
+{% block content %}
+<h1>Home</h1>
+
+{% if current_user.is_authenticated %}
+<p>You are logged in.</p>
+
+{% if current_user.is_admin %}
+<p><a href="{{ url_for('admin.dashboard') }}">Go to Admin Dashboard</a></p>
+{% endif %}
+{% else %}
+<p>Please sign in to continue.</p>
+{% endif %}
+{% endblock %}

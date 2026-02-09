@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, render_template
 
 from .blueprints.admin import bp as admin_bp
 from .blueprints.api import bp as api_bp
@@ -54,6 +54,10 @@ def create_app(config_name: str | None = None) -> Flask:
     register_cli(app)
     register_request_id(app)
     register_error_handlers(app)
+
+    @app.get("/")
+    def index():
+        return render_template("index.html")
 
     @app.get("/health")
     def health():

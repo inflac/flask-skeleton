@@ -49,8 +49,11 @@ class FakeUser:
     username: str | None = None
     id: int | None = None
 
-    # In Flask-Login, login_user checks is_active attribute/property.
+    # Flask-Login needs this
     is_active: bool = True
+
+    # our role-aware redirect uses this
+    is_admin: bool = False
 
 
 class FakeUserModel:
@@ -290,32 +293,72 @@ def test_get_or_create_user_links_existing_user_by_email_when_allowed_and_truste
 # ----------------------------
 
 
-def test_complete_login_returns_safe_next_url(app, monkeypatch):
+def test_complete_login_returns_safe_next_url_for_admin(app, monkeypatch):
     # don't hit flask-login internals; unit-test routing logic
     monkeypatch.setattr(svc, "login_user", lambda user: None)
 
-    u = FakeUser(email="login1@example.com", username="u1", id=1)
+    u = FakeUser(email="login1@example.com", username="u1", id=1, is_admin=True)
 
     with app.test_request_context("/any?next=/admin"):
         target = svc.complete_login(u)
         assert target == "/admin"
 
 
-def test_complete_login_falls_back_to_default_when_next_unsafe(app, monkeypatch):
+def test_complete_login_blocks_admin_next_for_non_admin(app, monkeypatch):
     monkeypatch.setattr(svc, "login_user", lambda user: None)
 
-    u = FakeUser(email="login2@example.com", username="u2", id=2)
+    # ensure deterministic expectation
+    app.config["AUTH_AFTER_LOGIN"] = "/"
+
+    u = FakeUser(email="login1@example.com", username="u1", id=1, is_admin=False)
+
+    with app.test_request_context("/any?next=/admin"):
+        target = svc.complete_login(u)
+        assert target == "/"
+
+
+def test_complete_login_returns_safe_next_url_for_non_admin_non_admin_path(app, monkeypatch):
+    monkeypatch.setattr(svc, "login_user", lambda user: None)
+
+    u = FakeUser(email="login1@example.com", username="u1", id=1, is_admin=False)
+
+    with app.test_request_context("/any?next=/auth/login?next=/admin"):
+        # safe relative URL, and not an /admin path itself
+        target = svc.complete_login(u)
+        assert target == "/auth/login?next=/admin"
+
+
+def test_complete_login_falls_back_to_user_default_when_next_unsafe(app, monkeypatch):
+    monkeypatch.setattr(svc, "login_user", lambda user: None)
+
+    app.config["AUTH_AFTER_LOGIN"] = "/"
+
+    u = FakeUser(email="login2@example.com", username="u2", id=2, is_admin=False)
 
     with app.test_request_context("/any?next=https://evil.com/phish"):
         target = svc.complete_login(u)
-        assert target == app.config.get("AUTH_DEFAULT_REDIRECT", "/admin")
+        assert target == "/"
 
 
-def test_complete_login_falls_back_to_default_when_next_missing(app, monkeypatch):
+def test_complete_login_falls_back_to_admin_default_when_next_missing(app, monkeypatch):
     monkeypatch.setattr(svc, "login_user", lambda user: None)
 
-    u = FakeUser(email="login3@example.com", username="u3", id=3)
+    app.config["AUTH_DEFAULT_ADMIN_REDIRECT"] = "/admin"
+
+    u = FakeUser(email="login3@example.com", username="u3", id=3, is_admin=True)
 
     with app.test_request_context("/any"):
         target = svc.complete_login(u)
-        assert target == app.config.get("AUTH_DEFAULT_REDIRECT", "/admin")
+        assert target == "/admin"
+
+
+def test_complete_login_falls_back_to_user_default_when_next_missing(app, monkeypatch):
+    monkeypatch.setattr(svc, "login_user", lambda user: None)
+
+    app.config["AUTH_AFTER_LOGIN"] = "/"
+
+    u = FakeUser(email="login4@example.com", username="u4", id=4, is_admin=False)
+
+    with app.test_request_context("/any"):
+        target = svc.complete_login(u)
+        assert target == "/"
